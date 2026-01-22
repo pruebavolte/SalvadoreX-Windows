@@ -1,0 +1,57 @@
+CONTRATO DE LICENCIA DE USUARIO FINAL (EULA)
+SalvadoreX POS - Sistema de Punto de Venta
+
+Copyright (C) 2024-2026 SalvadoreX. Todos los derechos reservados.
+
+IMPORTANTE: LEER ESTE CONTRATO ANTES DE INSTALAR EL SOFTWARE.
+
+Al instalar, copiar o usar este software, usted acepta los términos de este
+Contrato de Licencia de Usuario Final ("EULA"). Si no acepta estos términos,
+no instale ni use el software.
+
+1. CONCESIÓN DE LICENCIA
+SalvadoreX le concede una licencia no exclusiva e intransferible para usar
+este software en un (1) equipo a la vez por cada licencia adquirida.
+
+2. RESTRICCIONES
+- No puede copiar, modificar, distribuir, vender o alquilar el software.
+- No puede realizar ingeniería inversa, descompilar o desensamblar el software.
+- No puede remover o alterar las notificaciones de derechos de autor.
+- No puede usar el software para actividades ilegales.
+
+3. PROPIEDAD INTELECTUAL
+El software es propiedad de SalvadoreX y está protegido por leyes de derechos
+de autor y tratados internacionales.
+
+4. PRIVACIDAD Y DATOS
+- El software almacena datos localmente en su equipo.
+- La sincronización con la nube es opcional y requiere conexión a internet.
+- No recopilamos información personal sin su consentimiento.
+
+5. ACTUALIZACIONES
+El software puede descargar e instalar actualizaciones automáticamente para
+mejorar el rendimiento, corregir errores y agregar nuevas funcionalidades.
+
+6. LIMITACIÓN DE RESPONSABILIDAD
+El software se proporciona "tal cual" sin garantías de ningún tipo. SalvadoreX
+no será responsable por daños directos, indirectos, incidentales, especiales
+o consecuentes derivados del uso o la imposibilidad de usar el software.
+
+7. TERMINACIÓN
+Esta licencia se termina automáticamente si usted no cumple con sus términos.
+Al terminar, debe destruir todas las copias del software.
+
+8. LEY APLICABLE
+Este contrato se rige por las leyes de México.
+
+Para soporte técnico: soporte@salvadorex.com
+Para información comercial: ventas@salvadorex.com
+
+END USER LICENSE AGREEMENT (EULA)
+SalvadoreX POS - Point of Sale System
+
+By installing, copying, or using this software, you agree to the terms of
+this End User License Agreement. If you do not agree, do not install or
+use the software.
+
+For the complete English version, visit: https://salvadorex.com/license
