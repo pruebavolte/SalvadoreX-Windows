@@ -154,7 +154,9 @@ public class LicensingService
         // Para desarrollo: auto-activar si no existe licencia
         // En producción, esto debería retornar false
 #if DEBUG || RELEASE
-        ActivateLicense(hardwareId, GenerateDevLicenseKey(hardwareId), null);
+        try {
+            ActivateLicense(hardwareId, GenerateDevLicenseKey(hardwareId), null);
+        } catch {}
         return true;
 #else
         return false;
