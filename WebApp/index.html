@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalvadoreX POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-foreground': '#FFFFFF',
+                        background: '#FFFFFF',
+                        foreground: '#0F172A',
+                        muted: '#F1F5F9',
+                        'muted-foreground': '#64748B',
+                        border: '#E2E8F0',
+                        accent: '#F1F5F9',
+                        'accent-foreground': '#0F172A',
+                        destructive: '#EF4444',
+                        'destructive-foreground': '#FFFFFF',
+                        card: '#FFFFFF',
+                        'card-foreground': '#0F172A',
+                        sidebar: '#18181B',
+                        'sidebar-foreground': '#FAFAFA',
+                        'sidebar-muted': '#A1A1AA',
+                        'sidebar-accent': '#27272A',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .product-card { transition: all 0.2s ease; }
+        .product-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .sidebar-item { transition: all 0.15s ease; }
+        .sidebar-item:hover { background: #27272A; }
+        .sidebar-item.active { background: #3B82F6; }
+        .category-tab { transition: all 0.15s ease; }
+        .cart-item { animation: slideIn 0.2s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .bounce { animation: bounce 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.2s ease; }
+        .toast { animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="bg-muted h-screen overflow-hidden">
+    <div id="app" class="flex h-full">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-sidebar flex flex-col h-full flex-shrink-0">
+            <!-- Logo -->
+            <div class="h-16 px-6 flex items-center border-b border-zinc-800">
+                <span class="text-xl font-bold text-white tracking-tight">SalvadoreX</span>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto scrollbar-thin">
+                <a href="#" class="sidebar-item active flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium" data-page="pos">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span>POS</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="cocina">
+                    <i data-lucide="utensils-crossed" class="w-5 h-5"></i>
+                    <span>Cocina</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="corte">
+                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                    <span>Corte de Caja</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="fila">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span>Fila Virtual</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="dashboard">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="inventario">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                    <span>Inventario</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="ingredientes">
+                    <i data-lucide="soup" class="w-5 h-5"></i>
+                    <span>Ingredientes</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="menu-digital">
+                    <i data-lucide="chef-hat" class="w-5 h-5"></i>
+                    <span>Menu Digital</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="devoluciones">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                    <span>Devoluciones</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="clientes">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span>Clientes</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="solicitudes">
+                    <i data-lucide="ticket" class="w-5 h-5"></i>
+                    <span>Solicitudes</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="reportes">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="facturacion">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                    <span>Facturación</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="marcas-blancas">
+                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                    <span>Marcas Blancas</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="soporte">
+                    <i data-lucide="headphones" class="w-5 h-5"></i>
+                    <span>Soporte Remoto</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-muted text-sm font-medium" data-page="configuracion">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            
+            <!-- Footer Status -->
+            <div class="p-4 border-t border-zinc-800">
+                <div class="flex items-center gap-2 text-sidebar-muted text-xs">
+                    <span class="w-2 h-2 rounded-full bg-green-500" id="status-indicator"></span>
+                    <span id="status-text">Conectado</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Top Header -->
+            <header class="h-16 bg-white border-b border-border px-4 flex items-center justify-between gap-4 flex-shrink-0">
+                <!-- View Switcher (Desktop Preview Only) -->
+                <div class="flex items-center bg-muted rounded-lg p-1 mr-4">
+                    <button class="view-switcher-btn px-3 py-1 text-xs font-medium rounded-md bg-primary text-white transition-all" data-view="desktop">Windows</button>
+                    <button class="view-switcher-btn px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-accent transition-all" data-view="android">Android</button>
+                    <button class="view-switcher-btn px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-accent transition-all" data-view="web">Web</button>
+                </div>
+
+                <!-- Search (POS only) -->
+                <div id="search-header" class="flex items-center gap-2 flex-1 max-w-2xl">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4"></i>
+                        <input type="text" id="search-input" placeholder="Buscar productos..." 
+                            class="w-full h-9 pl-10 pr-4 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white">
+                    </div>
+                    <button class="h-9 px-4 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition flex items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </button>
+                    <select id="category-filter-header" class="h-9 px-3 pr-8 text-sm border border-border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+                        <option value="all">Todos</option>
+                    </select>
+                    <button class="h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <!-- User Avatar -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        S
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="flex-1 flex overflow-hidden">
+                <!-- POS Content (Products Section) -->
+                <div id="pos-content" class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Category Tabs -->
+                    <div class="bg-white border-b border-border px-4 py-3 flex-shrink-0">
+                        <div class="flex flex-wrap gap-2" id="category-tabs">
+                            <button class="category-tab px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-category="all">
+                                Todos <span class="opacity-80" id="count-all">(0)</span>
+                            </button>
+                            <button class="category-tab px-4 py-2 rounded-full text-sm font-medium bg-muted hover:bg-accent text-muted-foreground" data-category="mas-vendidos">
+                                Más vendidos
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="flex-1 overflow-y-auto p-4 scrollbar-thin bg-muted">
+                        <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="empty-state" class="hidden flex-col items-center justify-center h-full text-muted-foreground">
+                            <i data-lucide="package" class="w-16 h-16 mb-4 stroke-1"></i>
+                            <p class="text-lg font-medium">No hay productos</p>
+                            <p class="text-sm">Agrega productos en Inventario</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Content (Dynamic - for non-POS pages) -->
+                <div id="module-content" class="flex-1 flex flex-col overflow-hidden hidden">
+                </div>
+
+                <!-- Cart Sidebar -->
+                <aside id="cart-sidebar" class="w-80 bg-white border-l border-border flex flex-col h-full flex-shrink-0">
+                    <!-- Cart Header -->
+                    <div class="h-14 px-4 border-b border-border flex items-center justify-between flex-shrink-0">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-5 h-5 text-foreground"></i>
+                            <span class="font-semibold text-foreground">Carrito</span>
+                            <span id="cart-count" class="text-sm text-muted-foreground">(0)</span>
+                        </div>
+                        <button id="clear-cart-btn" class="text-destructive hover:text-destructive/80 text-sm font-medium flex items-center gap-1 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <span>Limpiar</span>
+                        </button>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div id="cart-items" class="flex-1 overflow-y-auto scrollbar-thin">
+                        <!-- Cart empty state -->
+                        <div id="cart-empty" class="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+                            <i data-lucide="shopping-cart" class="w-16 h-16 mb-4 stroke-1"></i>
+                            <p class="font-semibold text-lg mb-2">Carrito vacío</p>
+                            <p class="text-sm text-center">Agrega productos para comenzar una venta</p>
+                        </div>
+                    </div>
+
+                    <!-- Cart Footer -->
+                    <div class="border-t border-border p-4 space-y-3 bg-white flex-shrink-0">
+                        <!-- Global Discount -->
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium whitespace-nowrap">Descuento:</label>
+                            <div class="relative flex-1">
+                                <input type="number" id="global-discount" min="0" max="100" step="1" value="0"
+                                    class="w-full h-9 px-3 pr-8 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Totals -->
+                        <div class="space-y-2 pt-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-foreground">Subtotal:</span>
+                                <span class="font-medium" id="cart-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-foreground">Descuento:</span>
+                                <span class="font-medium text-green-600" id="cart-discount">-$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-foreground">IVA (16%):</span>
+                                <span class="font-medium" id="cart-iva">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold pt-2 border-t border-border">
+                                <span>Total:</span>
+                                <span class="text-primary" id="cart-total">$0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Checkout Button -->
+                        <button id="checkout-btn" class="w-full h-12 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                            <i data-lucide="credit-card" class="w-5 h-5"></i>
+                            <span>Cobrar</span>
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <!-- Payment Modal - Two Column Layout -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in" data-testid="payment-modal">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden">
+            <div class="flex flex-col md:flex-row">
+                <!-- Left Side - Main Content -->
+                <div class="flex-1 p-6 flex flex-col">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center pb-4 border-b border-border mb-4">
+                        <h3 class="text-xl font-semibold text-foreground">Procesar Pago</h3>
+                        <button id="close-payment" class="w-8 h-8 flex items-center justify-center hover:bg-accent rounded-md transition text-muted-foreground hover:text-foreground">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Total and Remaining Cards -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-primary/10 rounded-xl p-4 text-center">
+                            <p class="text-xs text-muted-foreground uppercase tracking-wide mb-1">Total a Pagar</p>
+                            <p id="payment-total" class="text-3xl font-bold text-primary" data-testid="text-total">$0.00</p>
+                        </div>
+                        <div id="remaining-card" class="bg-destructive/10 rounded-xl p-4 text-center transition-colors">
+                            <p id="remaining-label" class="text-xs text-muted-foreground uppercase tracking-wide mb-1">Falta por Pagar</p>
+                            <p id="remaining-amount" class="text-3xl font-bold text-destructive" data-testid="text-remaining">$0.00</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-4">
+                        <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Método de Pago</p>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button class="payment-method h-16 flex flex-col items-center justify-center gap-1 rounded-lg border-2 transition bg-green-500 border-green-500 text-white" data-method="cash" data-testid="button-payment-cash">
+                                <i data-lucide="banknote" class="w-5 h-5"></i>
+                                <span class="text-xs font-medium">Efectivo</span>
+                            </button>
+                            <button class="payment-method h-16 flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-border transition hover:bg-accent" data-method="card" data-testid="button-payment-card">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-muted-foreground"></i>
+                                <span class="text-xs font-medium text-muted-foreground">Tarjeta</span>
+                            </button>
+                            <button class="payment-method h-16 flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-border transition hover:bg-accent" data-method="transfer" data-testid="button-payment-transfer">
+                                <i data-lucide="smartphone" class="w-5 h-5 text-muted-foreground"></i>
+                                <span class="text-xs font-medium text-muted-foreground">Transferencia</span>
+                            </button>
+                            <button class="payment-method h-16 flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-border transition hover:bg-accent" data-method="credit" data-testid="button-payment-credit">
+                                <i data-lucide="user" class="w-5 h-5 text-muted-foreground"></i>
+                                <span class="text-xs font-medium text-muted-foreground">Crédito</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Spacer -->
+                    <div class="flex-1"></div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-4 flex gap-3">
+                        <button id="cancel-payment" class="flex-1 h-12 border-2 border-border rounded-lg font-medium hover:bg-accent transition flex items-center justify-center gap-2" data-testid="button-cancel-payment">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                            <span>Cancelar</span>
+                        </button>
+                        <button id="complete-sale" class="flex-1 h-12 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" data-testid="button-complete-payment">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                            <span>Completar Venta</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Side - Numpad Panel -->
+                <div class="w-full md:w-80 bg-muted/30 p-4 flex flex-col border-t md:border-t-0 md:border-l border-border">
+                    <!-- Amount Received Display -->
+                    <div class="mb-4">
+                        <div class="bg-white rounded-xl p-4 text-center border-2 border-primary/20">
+                            <p class="text-xs text-muted-foreground mb-1">Monto Recibido</p>
+                            <p id="amount-received-display" class="text-4xl font-bold font-mono" data-testid="text-amount-received">$0.00</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Amounts -->
+                    <div class="mb-4">
+                        <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Monto Rápido</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="20" data-testid="button-quick-20">$20</button>
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="50" data-testid="button-quick-50">$50</button>
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="100" data-testid="button-quick-100">$100</button>
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="200" data-testid="button-quick-200">$200</button>
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="500" data-testid="button-quick-500">$500</button>
+                            <button class="quick-amount h-10 text-sm font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-amount="1000" data-testid="button-quick-1000">$1000</button>
+                        </div>
+                        <button id="exact-amount-btn" class="w-full mt-2 h-10 text-sm font-medium rounded-lg bg-muted hover:bg-accent transition" data-testid="button-exact-amount">
+                            Monto Exacto ($<span id="exact-amount-value">0.00</span>)
+                        </button>
+                    </div>
+
+                    <!-- Numeric Keypad -->
+                    <div class="flex-1">
+                        <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Teclado</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="7" data-testid="button-numpad-7">7</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="8" data-testid="button-numpad-8">8</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="9" data-testid="button-numpad-9">9</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="4" data-testid="button-numpad-4">4</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="5" data-testid="button-numpad-5">5</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="6" data-testid="button-numpad-6">6</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="1" data-testid="button-numpad-1">1</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="2" data-testid="button-numpad-2">2</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="3" data-testid="button-numpad-3">3</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="." data-testid="button-numpad-dot">.</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="0" data-testid="button-numpad-0">0</button>
+                            <button class="numpad-key h-12 text-lg font-medium rounded-lg border border-border bg-white hover:bg-accent transition" data-key="00" data-testid="button-numpad-00">00</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button id="numpad-clear" class="h-12 rounded-lg border border-border bg-white hover:bg-accent transition flex items-center justify-center gap-1" data-testid="button-numpad-clear">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                <span class="text-sm font-medium">Borrar</span>
+                            </button>
+                            <button id="numpad-backspace" class="h-12 rounded-lg border border-border bg-white hover:bg-accent transition flex items-center justify-center" data-testid="button-numpad-backspace">
+                                <i data-lucide="delete" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+            <div class="h-14 px-6 bg-white border-b border-border flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-foreground">Agregar Producto</h3>
+                <button id="close-add-product" class="w-8 h-8 flex items-center justify-center hover:bg-accent rounded-md transition text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-foreground mb-1.5 block">Nombre del producto *</label>
+                    <input type="text" id="new-product-name" 
+                        class="w-full h-10 px-3 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                        placeholder="Ej: Coca Cola 600ml">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-foreground mb-1.5 block">Precio *</label>
+                        <input type="number" id="new-product-price" 
+                            class="w-full h-10 px-3 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                            placeholder="0.00" step="0.01">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-foreground mb-1.5 block">Costo</label>
+                        <input type="number" id="new-product-cost" 
+                            class="w-full h-10 px-3 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                            placeholder="0.00" step="0.01">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-foreground mb-1.5 block">SKU / Código</label>
+                        <input type="text" id="new-product-sku" 
+                            class="w-full h-10 px-3 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                            placeholder="Ej: COCA600">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-foreground mb-1.5 block">Stock inicial</label>
+                        <input type="number" id="new-product-stock" 
+                            class="w-full h-10 px-3 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                            placeholder="0" value="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-foreground mb-1.5 block">Categoría</label>
+                    <select id="new-product-category" 
+                        class="w-full h-10 px-3 text-sm border border-border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+                        <option value="">Sin categoría</option>
+                    </select>
+                </div>
+                <button id="save-new-product" class="w-full h-11 bg-primary text-white rounded-md font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                    <span>Guardar Producto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Preview Modal -->
+    <div id="receipt-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in" data-testid="receipt-modal">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="h-14 px-6 bg-green-600 flex justify-between items-center">
+                <div class="flex items-center gap-2 text-white">
+                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    <h3 class="text-lg font-semibold">¡Venta Completada!</h3>
+                </div>
+                <button id="close-receipt" class="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-md transition text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <!-- Receipt Preview -->
+                <div id="receipt-preview" class="bg-gray-50 rounded-lg p-4 mb-6 font-mono text-sm max-h-80 overflow-y-auto border border-border">
+                    <!-- Receipt content will be rendered here -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button id="print-receipt-btn" class="flex-1 h-12 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2" data-testid="button-print-receipt">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                        <span>Imprimir Ticket</span>
+                    </button>
+                    <button id="new-sale-btn" class="flex-1 h-12 border-2 border-border rounded-lg font-medium hover:bg-accent transition flex items-center justify-center gap-2" data-testid="button-new-sale">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Nueva Venta</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
