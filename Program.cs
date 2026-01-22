@@ -7,21 +7,14 @@ static class Program
     {
         ApplicationConfiguration.Initialize();
         
-        // Verificar licencia al iniciar
-        var licensing = new Services.LicensingService();
-        if (!licensing.ValidateLicense())
+        // Iniciar aplicación
+        try 
         {
-            var result = MessageBox.Show(
-                "Esta copia no está activada.\n\n" +
-                $"ID de Hardware: {licensing.GetHardwareId()}\n\n" +
-                "Contacte a su proveedor para activar el producto.",
-                "Activación Requerida",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Warning
-            );
-            return;
+            Application.Run(new MainForm());
         }
-        
-        Application.Run(new MainForm());
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error crítico al iniciar: {ex.Message}\n\nStack Trace: {ex.StackTrace}", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }
