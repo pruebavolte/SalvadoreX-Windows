@@ -5,6 +5,9 @@ static class Program
     [STAThread]
     static void Main()
     {
+        // Inicializar SQLite para evitar errores de tipo en tiempo de ejecución
+        SQLitePCL.Batteries.Init();
+        
         ApplicationConfiguration.Initialize();
         
         // Iniciar aplicación
