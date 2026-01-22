@@ -187,6 +187,12 @@ public partial class MainForm : Form
             // La WebApp local se usará como respaldo o para archivos estáticos base
             webView.CoreWebView2.Navigate("https://af7ad8c5-eddf-4888-8e69-3274eb62b09e-00-35c0aw0acrtx5.picard.replit.dev/dashboard/pos");
             
+            // Iniciar búsqueda automática de actualizaciones al iniciar
+            _ = Task.Run(async () => {
+                await Task.Delay(5000); // Esperar a que cargue la UI
+                await CheckForUpdatesAsync();
+            });
+
             // Iniciar sincronización en segundo plano
             _sync.StatusChanged += (s, msg) => 
             {
