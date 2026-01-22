@@ -41,17 +41,17 @@ public class SyncService
                 
                 if (IsOnline)
                 {
-                    StatusChanged?.Invoke(this, "• En línea");
+                    StatusChanged?.Invoke(this, "• Sincronizado");
                     await SyncPendingChangesAsync();
                 }
                 else
                 {
-                    StatusChanged?.Invoke(this, "• Sin conexión (modo offline)");
+                    StatusChanged?.Invoke(this, "• Modo local (offline)");
                 }
             }
             catch (Exception ex)
             {
-                StatusChanged?.Invoke(this, $"• Error: {ex.Message}");
+                StatusChanged?.Invoke(this, $"• Local: {ex.Message}");
             }
 
             await Task.Delay(TimeSpan.FromSeconds(_syncIntervalSeconds), cancellationToken);
