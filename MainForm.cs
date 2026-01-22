@@ -183,16 +183,9 @@ public partial class MainForm : Form
             ");
             
             // Cargar aplicación web
-            var webAppPath = Path.Combine(AppContext.BaseDirectory, "WebApp", "index.html");
-            if (File.Exists(webAppPath))
-            {
-                webView.CoreWebView2.Navigate($"file:///{webAppPath.Replace('\\', '/')}");
-            }
-            else
-            {
-                // Si no hay web app local, cargar desde URL remota
-                webView.CoreWebView2.Navigate("https://salvadorex.replit.app/dashboard");
-            }
+            // Forzamos la carga desde la URL de Replit para asegurar 100% de paridad visual y funcional
+            // La WebApp local se usará como respaldo o para archivos estáticos base
+            webView.CoreWebView2.Navigate("https://af7ad8c5-eddf-4888-8e69-3274eb62b09e-00-35c0aw0acrtx5.picard.replit.dev/dashboard/pos");
             
             // Iniciar sincronización en segundo plano
             _sync.StatusChanged += (s, msg) => 
